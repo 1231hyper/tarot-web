@@ -1,0 +1,519 @@
+/* ============================================
+   塔罗牌翻牌程序 - React 版
+   深色主题 + 3D 翻牌动画
+   ============================================ */
+
+/* ---------- 基础变量 ---------- */
+:root {
+  --bg-deep: #1a1a2e;
+  --bg-panel: #16213e;
+  --bg-card: #2c3e50;
+  --bg-card-back: #0f3460;
+  --accent: #ffd700;
+  --accent-glow: rgba(255, 215, 0, 0.3);
+  --text-primary: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --text-highlight: #87ceeb;
+  --purple-flip: #9b59b6;
+  --red-danger: #c0392b;
+  --red-hover: #e74c3c;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* ---------- Reset & 全局 ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ---------- App 布局 ---------- */
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  text-align: center;
+  padding: 20px 0 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.app-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.app-body {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  padding: 16px 0;
+  min-height: 0;
+}
+
+/* ---------- 左侧：已选牌阵 ---------- */
+.position-panel {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.positions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.position-slot {
+  background: var(--bg-card-back);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.position-slot.filled {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.position-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-highlight);
+  margin-bottom: 6px;
+}
+
+.position-card-name {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.position-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.orientation-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.orientation-tag.reversed {
+  background: rgba(231, 76, 60, 0.25);
+  color: #e74c3c;
+}
+
+.restart-btn {
+  margin-top: auto;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--red-danger);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.restart-btn:hover {
+  background: var(--red-hover);
+}
+
+.restart-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---------- 右侧：卡牌区域 ---------- */
+.card-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  align-content: start;
+}
+
+.card-hint {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ---------- 卡牌背面组件 ---------- */
+.card-back {
+  aspect-ratio: 5 / 7;
+  cursor: pointer;
+  perspective: 600px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-back.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* 悬停时微微掀起一角（仅未翻开状态） */
+.card-back:not(.flipped):hover .card-inner {
+  transform: rotateY(15deg) scale(1.04);
+}
+
+/* 点击按下时缩小 — 仅对未翻开的牌生效 */
+.card-back:not(.flipped):active .card-inner {
+  transform: scale(0.95);
+}
+
+/* ===== 翻牌动画 ===== */
+.card-back.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-back.flipped {
+  opacity: 1;
+  cursor: default;
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 2px solid var(--border-subtle);
+}
+
+.card-face-front {
+  background: var(--bg-card);
+  border-color: rgba(255, 215, 0, 0.25);
+}
+
+.card-face-front .card-symbol {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* 牌面 - 翻开后显示 */
+.card-face-back {
+  background: var(--bg-card);
+  transform: rotateY(180deg);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 牌面内的 card-face div */
+.card-face-back .card-face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.card-face-svg {
+  width: 80%;
+  height: 60%;
+}
+
+.card-face-name {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.1;
+  word-break: break-all;
+  padding: 0 2px;
+  margin-top: 2px;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.card-face-num {
+  font-size: 0.5rem;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-top: 1px;
+}
+
+/* ---------- 解读弹窗 ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.35s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 8px 0;
+  letter-spacing: 2px;
+}
+
+.modal-title-deco {
+  color: var(--text-muted);
+  margin: 0 6px;
+}
+
+.modal-title-end {
+  margin-top: 8px;
+}
+
+.readings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.reading-entry {
+  background: var(--bg-panel);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+}
+
+.reading-position {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-highlight);
+  margin-bottom: 8px;
+}
+
+.reading-meaning {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.modal-close-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 32px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  background: var(--purple-flip);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.modal-close-btn:hover {
+  background: #8e44ad;
+}
+
+.modal-close-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---------- 响应式适配 ---------- */
+@media (max-width: 900px) {
+  .app-body {
+    flex-direction: column;
+  }
+
+  .position-panel {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title {
+    width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .positions-list {
+    flex-direction: row;
+    flex: 1;
+    gap: 6px;
+  }
+
+  .position-slot {
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+  }
+
+  .restart-btn {
+    margin-top: 0;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .app-title {
+    font-size: 1.3rem;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .position-panel {
+    padding: 10px;
+  }
+
+  .position-slot {
+    padding: 6px;
+  }
+
+  .position-label {
+    font-size: 0.75rem;
+  }
+
+  .position-card-name {
+    font-size: 0.75rem;
+  }
+
+  .modal-content {
+    padding: 20px 16px;
+    max-height: 85vh;
+  }
+}
+
+/* ---------- 滚动条美化 ---------- */
+.card-grid::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-grid::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.card-grid::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.card-grid::-webkit-scrollbar-thumb:hover,
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
