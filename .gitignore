@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# 环境变量（含 API Key）
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import CardFace from "./CardFace";
 
+const cardBackImg = `${import.meta.env.BASE_URL}card-back.png`;
+
 export default function CardBack({ card, onClick, disabled, isFlipped, suit, majorIndex, minorIndex }) {
   const [pressed, setPressed] = useState(false);
 
@@ -22,9 +24,9 @@ export default function CardBack({ card, onClick, disabled, isFlipped, suit, maj
       aria-label={isFlipped ? `${card.name}（已翻开）` : `翻开 ${card.name}`}
     >
       <div className={`card-inner ${pressed && !isFlipped ? "pressed" : ""}`}>
-        {/* 正面 - 牌背 */}
+        {/* 正面 - 牌背图片 */}
         <div className="card-face card-face-front">
-          <span className="card-symbol">?</span>
+          <img src={cardBackImg} alt="card back" className="card-back-img" />
         </div>
         {/* 背面 - 翻牌后显示 */}
         <div className="card-face card-face-back">

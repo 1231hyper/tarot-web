@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타로 리딩</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0812;
+    --bg2: #110e1c;
+    --gold: #c9a84c;
+    --gold2: #e8c97a;
+    --purple: #7b4fa6;
+    --purple2: #a06fd4;
+    --text: #e8e0d0;
+    --text2: #a89880;
+    --card-bg: #1a1428;
+    --card-border: #3d2e5a;
+    --glow: rgba(201,168,76,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 40% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 80% 70%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 90%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 35% 70%, rgba(201,168,76,0.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 75% 15%, rgba(160,111,212,0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  header .subtitle {
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  header h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(24px, 5vw, 42px);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  header .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 16px auto;
+  }
+
+  header p {
+    color: var(--text2);
+    font-style: italic;
+    font-size: 16px;
+  }
+
+  /* Question input */
+  .question-section {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 30px;
+    position: relative;
+  }
+
+  .question-section::before {
+    content: '✦';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    padding: 0 10px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  .question-section label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .question-section textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    resize: none;
+    height: 80px;
+    transition: border-color 0.3s;
+    outline: none;
+  }
+
+  .question-section textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  .question-section textarea::placeholder {
+    color: var(--text2);
+    font-style: italic;
+  }
+
+  /* Spread selector */
+  .spread-section {
+    margin-bottom: 30px;
+  }
+
+  .spread-section label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .spread-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .spread-option {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+  }
+
+  .spread-option:hover {
+    border-color: var(--purple);
+    background: rgba(123,79,166,0.1);
+  }
+
+  .spread-option.active {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 20px var(--glow);
+  }
+
+  .spread-option .spread-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 11px;
+    color: var(--gold2);
+    margin-bottom: 6px;
+  }
+
+  .spread-option .spread-desc {
+    font-size: 13px;
+    color: var(--text2);
+    font-style: italic;
+  }
+
+  .spread-option .spread-count {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  /* Draw button */
+  .draw-btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #3d2060 0%, #5a2d8a 50%, #3d2060 100%);
+    border: 1px solid var(--purple2);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .draw-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .draw-btn:hover::before { transform: translateX(100%); }
+  .draw-btn:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(123,79,166,0.2);
+    transform: translateY(-1px);
+  }
+
+  .draw-btn:active { transform: translateY(0); }
+
+  /* Cards area */
+  .cards-area {
+    display: none;
+    margin-bottom: 40px;
+  }
+
+  .cards-area.visible { display: block; }
+
+  .cards-area-title {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  /* Card */
+  .tarot-card {
+    width: 140px;
+    text-align: center;
+    animation: cardReveal 0.6s ease both;
+  }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .card-position-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .card-img-wrapper {
+    width: 100%;
+    aspect-ratio: 2/3.5;
+    border-radius: 8px;
+    border: 2px solid var(--card-border);
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+    background: var(--card-bg);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .card-img-wrapper:hover {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px var(--glow);
+    transform: scale(1.03);
+  }
+
+  .card-img-wrapper.reversed {
+    transform: rotate(180deg);
+  }
+  .card-img-wrapper.reversed:hover {
+    transform: rotate(180deg) scale(1.03);
+  }
+
+  .card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Placeholder for missing images */
+  .card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1428, #2a1a40);
+    padding: 10px;
+  }
+
+  .card-placeholder .card-symbol {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+
+  .card-placeholder .card-roman {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .card-name-label {
+    font-size: 11px;
+    color: var(--gold2);
+    font-style: italic;
+  }
+
+  .card-reversed-badge {
+    font-size: 9px;
+    color: var(--purple2);
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Interpretation section */
+  .interpretation {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .interpretation.visible { display: block; }
+
+  .interp-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .interp-header .interp-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--gold2);
+    letter-spacing: 2px;
+  }
+
+  .interp-header .interp-icon {
+    font-size: 18px;
+  }
+
+  .interp-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+    margin-bottom: 20px;
+  }
+
+  .interp-text {
+    font-size: 17px;
+    line-height: 1.9;
+    color: var(--text);
+    font-weight: 300;
+    white-space: pre-wrap;
+  }
+
+  .loading-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .loading-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: dotPulse 1.4s infinite;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dotPulse {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* AI button */
+  .ai-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    color: var(--gold);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 16px;
+  }
+
+  .ai-btn:hover {
+    background: rgba(201,168,76,0.1);
+    box-shadow: 0 0 20px var(--glow);
+  }
+
+  .ai-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Reset */
+  .reset-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .reset-btn:hover {
+    border-color: var(--text2);
+    color: var(--text);
+  }
+
+  /* Card info modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 0 60px var(--glow);
+    animation: modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 18px;
+    color: var(--gold2);
+    margin-bottom: 6px;
+  }
+
+  .modal-reversed {
+    font-size: 12px;
+    color: var(--purple2);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .modal-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-bottom: 16px;
+  }
+
+  .modal-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .modal-keyword {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--gold2);
+    letter-spacing: 1px;
+  }
+
+  .modal-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text2);
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  .modal-close {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: var(--text2);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .modal-close:hover { border-color: var(--text2); color: var(--text); }
+
+  .note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text2);
+    font-style: italic;
+    opacity: 0.6;
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="subtitle">신비의 타로</div>
+    <h1>Tarot Reading</h1>
+    <div class="divider"></div>
+    <p>질문을 마음속에 담고, 카드를 뽑으세요</p>
+  </header>
+
+  <!-- Question -->
+  <div class="question-section">
+    <label>당신의 질문</label>
+    <textarea id="questionInput" placeholder="질문을 입력하세요"></textarea>
+  </div>
+
+  <!-- Spread selector -->
+  <div class="spread-section">
+    <label>스프레드 선택</label>
+    <div class="spread-options">
+      <div class="spread-option active" data-spread="one">
+        <div class="spread-count">🃏</div>
+        <div class="spread-name">원 카드</div>
+        <div class="spread-desc">핵심 메시지</div>
+      </div>
+      <div class="spread-option" data-spread="three">
+        <div class="spread-count">🃏🃏🃏</div>
+        <div class="spread-name">쓰리 카드</div>
+        <div class="spread-desc">과거 · 현재 · 미래</div>
+      </div>
+      <div class="spread-option" data-spread="choice">
+        <div class="spread-count">⚖️</div>
+        <div class="spread-name">양자택일</div>
+        <div class="spread-desc">A vs B 비교</div>
+      </div>
+      <div class="spread-option" data-spread="celtic">
+        <div class="spread-count">✦</div>
+        <div class="spread-name">켈틱 크로스</div>
+        <div class="spread-desc">심층 분석 (5장)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Draw button -->
+  <button class="draw-btn" id="drawBtn">✦ 카드 뽑기 ✦</button>
+
+  <!-- Cards -->
+  <div class="cards-area" id="cardsArea">
+    <div class="cards-area-title">✦ 뽑힌 카드 ✦</div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- AI interpretation -->
+  <div class="interpretation" id="interpretation">
+    <div class="interp-header">
+      <span class="interp-icon">🔮</span>
+      <span class="interp-title">AI 타로 해석</span>
+    </div>
+    <div class="interp-divider"></div>
+    <div class="interp-text" id="interpText"></div>
+  </div>
+
+  <!-- Buttons -->
+  <div id="actionBtns" style="display:none;">
+    <button class="ai-btn" id="aiBtn">✦ AI로 해석 받기 ✦</button>
+    <button class="reset-btn" id="resetBtn">↺ 다시 뽑기</button>
+  </div>
+
+  <p class="note">타로 카드는 참고용입니다 · 이미지: Rider-Waite Tarot (퍼블릭 도메인)</p>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-reversed" id="modalReversed"></div>
+    <div class="modal-divider"></div>
+    <div class="modal-keywords" id="modalKeywords"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <button class="modal-close" onclick="closeModal()">닫기</button>
+  </div>
+</div>
+
+<script>
+const IMG = "https://raw.githubusercontent.com/1052r-s/images/main/";
+
+const TAROT_CARDS = [
+  { id: 0, name: "The Fool", kr: "바보", symbol: "🌟", roman: "0", img: IMG+"tarot-0-fool.jpg",
+    keywords: ["새로운 시작", "모험", "순수함", "자유"],
+    upright: "새로운 시작, 순수한 에너지, 모험으로의 도약. 두려움 없이 앞으로 나아가는 시기.",
+    reversed: "무모함, 준비 부족, 경솔한 결정. 좀 더 신중하게 생각할 필요가 있음." },
+  { id: 1, name: "The Magician", kr: "마법사", symbol: "⚡", roman: "I", img: IMG+"tarot-1-magician.jpg",
+    keywords: ["의지력", "능력", "창조", "실현"],
+    upright: "모든 자원과 능력이 갖춰져 있음. 의지와 집중으로 원하는 것을 현실로 만들 수 있는 시기.",
+    reversed: "재능의 낭비, 조작, 능력의 부재. 자신의 능력을 믿지 못하고 있음." },
+  { id: 2, name: "The High Priestess", kr: "여사제", symbol: "🌙", roman: "II", img: IMG+"tarot-2-high-priestess.jpg",
+    keywords: ["직관", "신비", "내면의 지식", "침묵"],
+    upright: "직관과 내면의 목소리를 따르라. 숨겨진 진실이 드러날 시기.",
+    reversed: "비밀, 혼란, 직관 무시. 겉으로만 보이는 것에 집착하고 있음." },
+  { id: 3, name: "The Empress", kr: "여황제", symbol: "🌹", roman: "III", img: IMG+"tarot-3-the-empress.jpg",
+    keywords: ["풍요", "모성", "창조성", "자연"],
+    upright: "풍요와 아름다움, 창조적 에너지가 넘치는 시기. 사랑과 돌봄이 가득함.",
+    reversed: "창의성 억압, 의존성, 풍요의 부재. 자신을 너무 방치하고 있음." },
+  { id: 4, name: "The Emperor", kr: "황제", symbol: "👑", roman: "IV", img: IMG+"tarot-4-the-emperor.jpg",
+    keywords: ["권위", "안정", "리더십", "구조"],
+    upright: "강한 리더십과 안정된 기반. 통제력과 규율로 목표를 달성하는 시기.",
+    reversed: "독재, 경직성, 권력 남용. 지나친 통제욕이 문제를 만들고 있음." },
+  { id: 5, name: "The Hierophant", kr: "교황", symbol: "✝️", roman: "V", img: IMG+"tarot-5-the-hierophant.jpg",
+    keywords: ["전통", "신념", "정통", "가르침"],
+    upright: "전통적인 방식과 신뢰받는 가이드가 도움이 됨. 정석적인 접근이 최선.",
+    reversed: "관습 거부, 반항, 잘못된 조언. 기존 규칙에 의문을 품고 있음." },
+  { id: 6, name: "The Lovers", kr: "연인", symbol: "💕", roman: "VI", img: IMG+"tarot-6-the-lovers.jpg",
+    keywords: ["선택", "사랑", "조화", "가치관"],
+    upright: "중요한 선택의 기로. 진정한 사랑과 가치에 기반한 결정을 내려야 함.",
+    reversed: "불일치, 나쁜 선택, 갈등. 가치관의 충돌로 갈피를 못 잡고 있음." },
+  { id: 7, name: "The Chariot", kr: "전차", symbol: "⚔️", roman: "VII", img: IMG+"tarot-7-the-chariot.jpg",
+    keywords: ["승리", "의지", "극복", "추진력"],
+    upright: "강한 의지로 장애물을 극복. 목표를 향해 힘차게 전진하는 시기.",
+    reversed: "방향 상실, 자제력 부족, 패배. 의지력이 흔들리고 있음." },
+  { id: 8, name: "Strength", kr: "힘", symbol: "🦁", roman: "VIII", img: IMG+"tarot-8-strength.jpg",
+    keywords: ["용기", "인내", "내면의 힘", "자제"],
+    upright: "내면의 힘과 부드러운 용기. 인내와 자비로 어려운 상황을 다스릴 수 있음.",
+    reversed: "자기 의심, 나약함, 통제력 상실. 내면의 두려움에 지배당하고 있음." },
+  { id: 9, name: "The Hermit", kr: "은둔자", symbol: "🕯️", roman: "IX", img: IMG+"tarot-9-hermit.jpg",
+    keywords: ["고독", "내면 탐색", "지혜", "성찰"],
+    upright: "고독과 성찰이 필요한 시기. 내면의 빛을 따라 지혜를 찾아가야 함.",
+    reversed: "고립, 외로움, 지나친 은둔. 사람들과의 연결을 피하고 있음." },
+  { id: 10, name: "Wheel of Fortune", kr: "운명의 수레바퀴", symbol: "🎡", roman: "X", img: IMG+"tarot-10-wheel-of-fortune.jpg",
+    keywords: ["변화", "운명", "전환점", "행운"],
+    upright: "운명적 전환점. 변화의 흐름을 받아들이면 행운이 따름.",
+    reversed: "불운, 저항, 변화에 대한 두려움. 흐름을 거스르고 있음." },
+  { id: 11, name: "Justice", kr: "정의", symbol: "⚖️", roman: "XI", img: IMG+"tarot-11-justice.jpg",
+    keywords: ["공정", "진실", "균형", "결과"],
+    upright: "공정한 결과가 찾아옴. 진실과 균형에 기반한 결정이 이루어지는 시기.",
+    reversed: "불공정, 책임 회피, 불균형. 편견이나 거짓이 판단을 흐리고 있음." },
+  { id: 12, name: "The Hanged Man", kr: "매달린 사람", symbol: "🔄", roman: "XII", img: IMG+"tarot-12-the-hanged-man.jpg",
+    keywords: ["보류", "희생", "다른 시각", "기다림"],
+    upright: "잠시 멈추고 다른 시각으로 바라볼 때. 기다림 속에 깨달음이 있음.",
+    reversed: "지연, 저항, 희생 거부. 변화를 위한 놓아버림을 두려워하고 있음." },
+  { id: 13, name: "Death", kr: "죽음", symbol: "🌑", roman: "XIII", img: IMG+"tarot-13-death.jpg",
+    keywords: ["변환", "끝과 시작", "해방", "전환"],
+    upright: "한 단계의 끝이자 새로운 시작. 과거를 놓아야 새것이 들어올 수 있음.",
+    reversed: "변화 저항, 집착, 정체. 끝내야 할 것을 붙들고 놓지 못하고 있음." },
+  { id: 14, name: "Temperance", kr: "절제", symbol: "🌊", roman: "XIV", img: IMG+"tarot-14-temperance.jpg",
+    keywords: ["균형", "절제", "인내", "조화"],
+    upright: "균형과 조화를 통해 완성에 이름. 천천히, 꾸준히 나아가는 것이 최선.",
+    reversed: "불균형, 과잉, 극단. 너무 지나치거나 부족한 상태가 문제를 만들고 있음." },
+  { id: 15, name: "The Devil", kr: "악마", symbol: "🔗", roman: "XV", img: IMG+"tarot-15-the-devil.jpg",
+    keywords: ["속박", "집착", "물질주의", "그림자"],
+    upright: "스스로 만든 감옥. 두려움과 집착이 자유를 빼앗고 있음. 사슬은 끊을 수 있음.",
+    reversed: "해방, 집착에서 벗어남, 자유. 묶여있던 것에서 풀려나기 시작함." },
+  { id: 16, name: "The Tower", kr: "탑", symbol: "⚡", roman: "XVI", img: IMG+"tarot-16-the-tower.jpg",
+    keywords: ["충격", "붕괴", "계시", "혼돈"],
+    upright: "갑작스러운 변화와 붕괴. 충격적이지만 오래된 구조가 무너져야 새것이 세워짐.",
+    reversed: "파국 회피, 공포, 억압된 혼돈. 터질 것을 억지로 누르고 있음." },
+  { id: 17, name: "The Star", kr: "별", symbol: "⭐", roman: "XVII", img: IMG+"tarot-17-the-star.jpg",
+    keywords: ["희망", "치유", "영감", "회복"],
+    upright: "희망과 치유의 빛. 어둠 이후 찾아오는 평화와 영적 회복의 시기.",
+    reversed: "절망, 불신, 꿈의 포기. 희망을 잃고 방황하고 있음." },
+  { id: 18, name: "The Moon", kr: "달", symbol: "🌕", roman: "XVIII", img: IMG+"tarot-18-the-moon.jpg",
+    keywords: ["환상", "두려움", "혼란", "무의식"],
+    upright: "불확실성과 착각. 보이는 것을 믿지 말고 내면의 공포와 직면해야 함.",
+    reversed: "혼란 해소, 진실 드러남, 공포 극복. 안개가 걷히고 있음." },
+  { id: 19, name: "The Sun", kr: "태양", symbol: "☀️", roman: "XIX", img: IMG+"tarot-19-the-sun.jpg",
+    keywords: ["기쁨", "성공", "활력", "명확함"],
+    upright: "성공과 기쁨, 밝은 에너지. 모든 것이 잘 풀리는 긍정적인 시기.",
+    reversed: "활기 부족, 과신, 일시적인 그늘. 긍정적이지만 현실감각도 필요함." },
+  { id: 20, name: "Judgement", kr: "심판", symbol: "📯", roman: "XX", img: IMG+"tarot-20-judgement.jpg",
+    keywords: ["재탄생", "반성", "부활", "각성"],
+    upright: "중요한 깨달음과 재탄생. 과거를 반성하고 새로운 차원으로 나아가는 시기.",
+    reversed: "자기 의심, 반성 거부, 기회 외면. 내면의 부름을 무시하고 있음." },
+  { id: 21, name: "The World", kr: "세계", symbol: "🌍", roman: "XXI", img: IMG+"tarot-21-the-world.jpg",
+    keywords: ["완성", "성취", "통합", "완전함"],
+    upright: "한 사이클의 완성. 목표를 달성하고 온전한 충족감을 느끼는 시기.",
+    reversed: "미완성, 지연, 완성 직전의 좌절. 마지막 한 발짝을 내딛지 못하고 있음." },
+  { id: 22, name: "Ace of Wands", kr: "완드 에이스", symbol: "🔥", roman: "Ace", img: IMG+"wands01.jpg",
+    keywords: ["시작", "열정", "영감", "잠재력"],
+    upright: "새로운 열정과 창의적 에너지의 시작. 새 프로젝트나 모험을 시작하기 좋은 시기.",
+    reversed: "창의성 막힘, 지연, 열정 부족. 시작이 자꾸 미뤄지고 있음." },
+  { id: 23, name: "2 of Wands", kr: "완드 2", symbol: "🌐", roman: "II", img: IMG+"wands02.jpg",
+    keywords: ["계획", "미래", "가능성", "선택"],
+    upright: "미래를 내다보며 계획을 세우는 시기. 다음 단계로 나아갈 준비가 되어 있음.",
+    reversed: "두려움, 계획 실패, 좁은 시야. 큰 그림을 보지 못하고 있음." },
+  { id: 24, name: "6 of Wands", kr: "완드 6", symbol: "🏆", roman: "VI", img: IMG+"wands06.jpg",
+    keywords: ["승리", "인정", "자신감", "성공"],
+    upright: "노력의 결실, 공개적인 인정과 칭찬. 자신감을 갖고 앞으로 나아가도 됨.",
+    reversed: "실패에 대한 두려움, 자만, 불인정. 성공을 인정받지 못하거나 자만심이 문제." },
+  { id: 25, name: "7 of Wands", kr: "완드 7", symbol: "🛡️", roman: "VII", img: IMG+"wands07.jpg",
+    keywords: ["방어", "도전", "경쟁", "버팀"],
+    upright: "도전과 압박 속에서도 자신의 자리를 지키는 중. 포기하지 말고 버텨야 함.",
+    reversed: "포기, 과부하, 방어 무너짐. 너무 많은 것과 싸우며 지쳐있음." },
+  { id: 26, name: "9 of Wands", kr: "완드 9", symbol: "💪", roman: "IX", img: IMG+"wands09.jpg",
+    keywords: ["회복력", "경계", "지속", "피로"],
+    upright: "지쳐있지만 포기하지 않는 강인함. 마지막 힘을 내어 한 번 더 나아가야 할 시기.",
+    reversed: "탈진, 과도한 방어, 포기. 더 이상 싸울 힘이 없다고 느끼고 있음." },
+  { id: 27, name: "2 of Pentacles", kr: "펜타클 2", symbol: "🔄", roman: "II", img: IMG+"pents02.jpg",
+    keywords: ["균형", "적응", "유연성", "저울질"],
+    upright: "여러 가지를 동시에 조율하는 시기. 유연하게 균형을 맞추는 것이 중요.",
+    reversed: "균형 상실, 과부하, 혼란. 너무 많은 것을 동시에 하려다 지쳐있음." },
+  { id: 28, name: "4 of Pentacles", kr: "펜타클 4", symbol: "💰", roman: "IV", img: IMG+"pents04.jpg",
+    keywords: ["안전", "소유", "집착", "통제"],
+    upright: "안정과 안전을 추구함. 하지만 지나친 집착은 성장을 막을 수 있음.",
+    reversed: "인색함, 집착에서 해방, 낭비. 소유에 대한 집착이 풀리거나 반대로 통제력을 잃음." },
+  { id: 29, name: "2 of Swords", kr: "소드 2", symbol: "⚔️", roman: "II", img: IMG+"swords02.jpg",
+    keywords: ["결정 회피", "교착", "선택 어려움", "균형"],
+    upright: "결정을 내리기 어려운 교착 상태. 눈을 가린 채 외면하고 있는 것이 있음.",
+    reversed: "정보 과부하, 혼란, 회피. 결정을 더 이상 미룰 수 없는 시점." },
+  { id: 30, name: "4 of Swords", kr: "소드 4", symbol: "😴", roman: "IV", img: IMG+"swords04.jpg",
+    keywords: ["휴식", "회복", "명상", "잠시 멈춤"],
+    upright: "잠시 쉬면서 재충전이 필요한 시기. 물러서서 회복하는 것이 최선의 전략.",
+    reversed: "억지로 활동, 휴식 거부, 불안. 쉬어야 하는데 쉬지 못하고 있음." },
+  { id: 31, name: "8 of Swords", kr: "소드 8", symbol: "🔒", roman: "VIII", img: IMG+"swords08.jpg",
+    keywords: ["갇힘", "제한", "희생자 의식", "두려움"],
+    upright: "스스로 만든 감옥에 갇혀있음. 실제로는 빠져나갈 출구가 있으나 두려움이 막고 있음.",
+    reversed: "해방, 자기 제한에서 벗어남, 자유. 스스로를 묶었던 두려움에서 풀려나고 있음." },
+  { id: 32, name: "5 of Swords", kr: "소드 5", symbol: "😤", roman: "V", img: IMG+"swords05.jpg",
+    keywords: ["갈등", "패배", "씁쓸한 승리", "분쟁"],
+    upright: "갈등과 충돌. 이겨도 씁쓸한 승리일 수 있음. 싸움을 이어갈 가치가 있는지 생각해봐야 함.",
+    reversed: "화해, 분쟁 종결, 후회. 갈등이 마무리되거나 과거의 갈등을 반성하게 됨." },
+  { id: 33, name: "6 of Swords", kr: "소드 6", symbol: "⛵", roman: "VI", img: IMG+"swords06.jpg",
+    keywords: ["전환", "이동", "회복", "평온"],
+    upright: "힘든 시기에서 더 평화로운 곳으로 이동. 아직 상처가 있지만 나아지고 있음.",
+    reversed: "지연, 이동 거부, 과거에 집착. 앞으로 나아가야 하는데 붙들려 있음." },
+  { id: 34, name: "2 of Cups", kr: "컵 2", symbol: "💑", roman: "II", img: IMG+"cups02.jpg",
+    keywords: ["연결", "파트너십", "상호작용", "조화"],
+    upright: "감정적 연결과 상호 이해. 두 사람 사이에 진정한 유대가 형성되는 시기.",
+    reversed: "불화, 불균형, 단절. 관계의 균형이 깨져있음." },
+  { id: 35, name: "4 of Cups", kr: "컵 4", symbol: "😔", roman: "IV", img: IMG+"cups04.jpg",
+    keywords: ["무관심", "재고", "무감각", "새 기회"],
+    upright: "눈앞의 기회를 보지 못하거나 무관심한 상태. 감사함을 잃고 무감각해져 있음.",
+    reversed: "각성, 새 기회 인식, 의욕 회복. 무기력에서 벗어나 다시 관심이 생기기 시작함." },
+];
+
+const SPREADS = {
+  one: [{ label: "현재 메시지" }],
+  three: [{ label: "과거" }, { label: "현재" }, { label: "미래" }],
+  choice: [{ label: "현재 상황" }, { label: "A 과정" }, { label: "A 결과" }, { label: "B 과정" }, { label: "B 결과" }],
+  celtic: [{ label: "현재 상황" }, { label: "도전/장애" }, { label: "과거" }, { label: "미래" }, { label: "결과" }]
+};
+
+let currentSpread = 'one';
+let drawnCards = [];
+
+// Spread selector
+document.querySelectorAll('.spread-option').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.spread-option').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    currentSpread = el.dataset.spread;
+  });
+});
+
+// Draw cards
+document.getElementById('drawBtn').addEventListener('click', () => {
+  const positions = SPREADS[currentSpread];
+  const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5);
+  drawnCards = positions.map((pos, i) => ({
+    ...shuffled[i],
+    reversed: Math.random() > 0.6,
+    position: pos.label
+  }));
+
+  renderCards();
+  document.getElementById('cardsArea').classList.add('visible');
+  document.getElementById('actionBtns').style.display = 'block';
+  document.getElementById('interpretation').classList.remove('visible');
+  document.getElementById('interpText').innerHTML = '';
+  document.getElementById('drawBtn').style.display = 'none';
+});
+
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+  drawnCards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'tarot-card';
+    el.style.animationDelay = `${i * 0.12}s`;
+    el.innerHTML = `
+      <div class="card-position-label">${card.position}</div>
+      <div class="card-img-wrapper ${card.reversed ? 'reversed' : ''}" onclick="showCardInfo(${i})">
+        <img src="${card.img}" alt="${card.kr}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+          style="width:100%;height:100%;object-fit:cover;" />
+        <div class="card-placeholder" style="display:none;">
+          <div class="card-symbol">${card.symbol}</div>
+          <div class="card-roman">${card.roman}</div>
+        </div>
+      </div>
+      <div class="card-name-label">${card.kr}</div>
+      ${card.reversed ? '<div class="card-reversed-badge">역방향</div>' : ''}
+    `;
+    grid.appendChild(el);
+  });
+}
+
+// Show card info modal
+function showCardInfo(index) {
+  const card = drawnCards[index];
+  document.getElementById('modalName').textContent = `${card.kr} (${card.name})`;
+  document.getElementById('modalReversed').textContent = card.reversed ? '✦ 역방향' : '✦ 정방향';
+  document.getElementById('modalKeywords').innerHTML = card.keywords.map(k =>
+    `<span class="modal-keyword">${k}</span>`).join('');
+  document.getElementById('modalDesc').textContent = card.reversed ? card.reversed_desc || card.reversed : card.upright;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// AI interpretation
+document.getElementById('aiBtn').addEventListener('click', async () => {
+  const question = document.getElementById('questionInput').value.trim() || '타로 리딩';
+  const aiBtn = document.getElementById('aiBtn');
+  const interpDiv = document.getElementById('interpretation');
+  const interpText = document.getElementById('interpText');
+
+  aiBtn.disabled = true;
+  interpDiv.classList.add('visible');
+  interpText.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+
+  const cardList = drawnCards.map(c =>
+    `[${c.position}] ${c.kr} (${c.name}) - ${c.reversed ? '역방향' : '정방향'}`
+  ).join('\n');
+
+  const prompt = `당신은 깊이 있는 타로 리더입니다. 따뜻하고 통찰력 있게 해석해 주세요.
+
+질문: "${question}"
+스프레드: ${currentSpread === 'one' ? '원카드' : currentSpread === 'three' ? '쓰리카드(과거/현재/미래)' : currentSpread === 'choice' ? '양자택일' : '켈틱 크로스'}
+
+뽑힌 카드:
+${cardList}
+
+각 카드의 의미를 위치에 맞게 해석하고, 마지막에 전체적인 메시지와 조언을 2-3문장으로 정리해 주세요. 한국어로, 반말 없이 친근하고 따뜻한 말투로 써주세요.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '해석을 불러올 수 없었어요.';
+    interpText.textContent = text;
+  } catch (e) {
+    interpText.textContent = '해석 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.';
+  }
+
+  aiBtn.disabled = false;
+});
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click', () => {
+  drawnCards = [];
+  document.getElementById('cardsArea').classList.remove('visible');
+  document.getElementById('interpretation').classList.remove('visible');
+  document.getElementById('actionBtns').style.display = 'none';
+  document.getElementById('drawBtn').style.display = 'block';
+  document.getElementById('interpText').innerHTML = '';
+});
+</script>
+</body>
+</html>

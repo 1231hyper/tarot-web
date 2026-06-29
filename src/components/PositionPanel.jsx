@@ -1,11 +1,9 @@
-import { POSITIONS } from "../data/cards";
-
-export default function PositionPanel({ selectedCards, onRestart }) {
+export default function PositionPanel({ selectedCards, positions, onRestart }) {
   return (
     <aside className="position-panel">
       <h2 className="panel-title">已选牌阵</h2>
       <div className="positions-list">
-        {POSITIONS.map((pos, i) => {
+        {positions.map((pos, i) => {
           const selected = selectedCards[i];
           return (
             <div key={pos} className={`position-slot ${selected ? "filled" : ""}`}>
